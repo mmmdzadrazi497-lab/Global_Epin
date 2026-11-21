@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="az" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Global EPIN — Oyun Ödənişləri və Rəqəmsal E-PIN Mağazası</title>
+<style>
+  :root {
+    --bg: #07070c;
+    --bg-2: #0f0f17;
+    --card: #13131d;
+    --card-2: #1a1a28;
+    --border: rgba(255, 255, 255, 0.1);
+    --gold: #f5b800;
+    --gold-2: #ffcf33;
+    --cyan: #22d3ee;
+    --text: #ffffff;
+    --muted: #a1a1b5;
+    --green: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at 50% -5%, rgba(245, 184, 0, 0.14), transparent 40%), var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+    min-height: 100vh;
+    padding-bottom: 92px;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font-family: inherit; color: inherit; }
+  button { cursor: pointer; border: none; background: none; }
+
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 14px; }
+
+  /* Yuxarı Sosial İkonlar Zolağı */
+  .top-social-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px 4px;
+    flex-wrap: wrap;
+  }
+  .soc-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 5px 11px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+  }
+  .soc-pill:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); }
+
+  /* Header */
+  header.site-header {
+    padding: 10px 0 8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(7, 7, 12, 0.92);
+    backdrop-filter: blur(14px);
+    position: sticky;
+    top: 0;
+    z-index: 60;
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .logo-wrap { display: flex; flex-direction: column; }
+  .logo-title {
+    font-size: 1.45rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .logo-title span.gold { color: var(--gold); }
+  .logo-sub { font-size: 0.74rem; color: var(--muted); }
+
+  .auth-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .btn-dark {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-2));
+    color: #09090d;
+    padding: 7px 13px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Axtarış və Sürətli Oyun Dairələri */
+  .search-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .menu-square-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .search-box-wrap {
+    flex: 1;
+    position: relative;
+  }
+  .search-input {
+    width: 100%;
+    height: 42px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0 38px 0 14px;
+    font-size: 0.88rem;
+  }
+  .search-input:focus { outline: none; border-color: var(--gold); }
+  .search-ico {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .quick-games-row {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 6px 2px 12px;
+    scrollbar-width: none;
+  }
+  .quick-games-row::-webkit-scrollbar { display: none; }
+  .qg-item {
+    min-width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 6px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .qg-item:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+  /* Banner Slider */
+  .promo-banner {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(115deg, #1b152b 0%, #101827 55%, #2a1807 100%);
+    border: 1px solid rgba(245, 184, 0, 0.3);
+    padding: 24px 20px;
+    margin-bottom: 12px;
+  }
+  .promo-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.14);
+    padding: 3px 10px;
+    border-radius: 7px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+  }
+  .promo-banner h1 { font-size: clamp(1.2rem, 3vw, 1.85rem); line-height: 1.2; margin-bottom: 6px; }
+  .promo-banner p { color: #e5e7eb; font-weight: 700; font-size: 0.92rem; margin-bottom: 14px; }
+  .banner-thumbs {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .b-thumb {
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #d1d5db;
+  }
+  .b-thumb.active { border-color: var(--gold); color: var(--gold); background: rgba(245,184,0,0.12); }
+
+  /* Üstünlük Kartları (Şəkil 2 üslubunda) */
+  .perks-list { display: flex; flex-direction: column; gap: 12px; margin: 18px 0; }
+  .perk-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .perk-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff7a18, #af002d 50%, #319197);
+  }
+  .perk-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .perk-ico {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .perk-card p { color: var(--muted); font-size: 0.85rem; margin-bottom: 10px; }
+  .perk-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .perk-pill {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 5px 10px;
+    font-size: 0.76rem;
+    color: #d1d5db;
+  }
+  .perk-pill strong { color: var(--gold); }
+
+  /* Kateqoriya və Məhsul Kartları */
+  .section-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0 12px;
+    flex-wrap: wrap;
+  }
+  .section-bar h2 { font-size: 1.2rem; }
+  .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cat-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .cat-chip.active { background: var(--gold); color: #09090d; border-color: var(--gold); }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+    gap: 14px;
+  }
+  .p-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .p-card:hover { transform: translateY(-3px); border-color: rgba(245,184,0,0.5); }
+  .p-thumb {
+    width: 100%;
+    height: 145px;
+    object-fit: cover;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .p-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: space-between; }
+  .p-title { font-size: 0.98rem; font-weight: 800; }
+  .p-desc { font-size: 0.78rem; color: var(--muted); }
+  .p-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .p-price { font-size: 1.05rem; font-weight: 900; color: var(--gold); }
+
+  /* Balans & Ödəniş Üsulu Kartları (Şəkil 3 üslubunda) */
+  .panel-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    margin: 18px 0;
+  }
+  .balance-banner {
+    background: linear-gradient(135deg, rgba(245,184,0,0.14), rgba(245,184,0,0.04));
+    border: 1px solid rgba(245,184,0,0.45);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .balance-banner strong { font-size: 1.45rem; color: var(--gold); }
+  .pay-cards-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .pay-method-tile {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  .pay-method-tile.selected { border-color: var(--gold); background: rgba(245,184,0,0.08); }
+  .pay-method-tile strong { display: block; font-size: 0.88rem; margin-top: 6px; }
+  .pay-method-tile span { font-size: 0.74rem; color: var(--muted); display: block; margin-top: 2px; }
+  .badge-pill-tag {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    background: rgba(16,185,129,0.18);
+    color: #34d399;
+  }
+  .badge-pill-tag.admin { background: rgba(245,158,11,0.18); color: #fbbf24; }
+
+  /* Sifarişlər & Tarixçə */
+  .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+  .item-row {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 0.83rem;
+  }
+  .st-badge { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; }
+  .st-pend { background: rgba(245,158,11,0.18); color: var(--warn); }
+  .st-ok { background: rgba(16,185,129,0.18); color: var(--green); }
+  .st-no { background: rgba(239,68,68,0.18); color: var(--danger); }
+  .epin-line {
+    margin-top: 6px;
+    padding: 6px 9px;
+    border-radius: 8px;
+    background: rgba(16,185,129,0.12);
+    border: 1px dashed var(--green);
+    color: #a7f3d0;
+    font-family: monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Footer (Şəkil 5 üslubunda) */
+  footer.site-footer {
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
+    padding: 24px 14px 36px;
+    margin-top: 26px;
+  }
+  .footer-brand-desc { color: var(--muted); font-size: 0.84rem; margin: 8px 0 14px; max-width: 680px; }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 18px;
+    margin-top: 16px;
+  }
+  .footer-cols h4 {
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+    position: relative;
+    padding-bottom: 5px;
+  }
+  .footer-cols h4::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 24px; height: 2px;
+    background: var(--gold);
+  }
+  .footer-cols ul { list-style: none; }
+  .footer-cols li { margin-bottom: 7px; font-size: 0.83rem; color: var(--muted); }
+  .footer-cols li a:hover { color: var(--gold); }
+
+  /* Sağ Yan Çekmə Menyu (Şəkil 4 üslubunda) */
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    z-index: 120;
+    display: none;
+  }
+  .drawer-backdrop.open { display: block; }
+  .side-drawer {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 300px;
+    max-width: 88vw;
+    background: #111119;
+    border-right: 1px solid var(--border);
+    z-index: 130;
+    padding: 16px;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  .side-drawer.open { transform: translateX(0); }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .drawer-link {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 12px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid transparent;
+    margin-bottom: 6px;
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+  .drawer-link:hover { border-color: var(--gold); }
+  .drawer-sec-title { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.8px; margin: 14px 0 8px; text-transform: uppercase; }
+
+  /* Alt Naviqasiya Çubuğu (Şəkil 1-3 üslubunda) */
+  .bottom-nav {
+    position: fixed;
+    left: 10px; right: 10px; bottom: 10px;
+    z-index: 80;
+    background: rgba(16, 16, 24, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(245, 184, 0, 0.55);
+    border-radius: 20px;
+    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.65);
+  }
+  .bnav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 5px 2px;
+    border-radius: 13px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #d1d5db;
+  }
+  .bnav-btn.active { color: var(--gold); background: rgba(245,184,0,0.1); }
+  .bnav-ico { font-size: 1.05rem; }
+
+  /* Üzən Dəstək Düyməsi */
+  .float-support {
+    position: fixed;
+    right: 16px;
+    bottom: 82px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #09090d;
+    font-size: 1.3rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(245,184,0,0.4);
+    z-index: 85;
+  }
+
+  /* Modallar */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    z-index: 150;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 18px;
+  }
+  .field { margin-bottom: 11px; }
+  .field label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 11px;
+    font-size: 0.88rem;
+  }
+  .pay-info-box {
+    background: rgba(245,184,0,0.08);
+    border: 1px solid rgba(245,184,0,0.35);
+    border-radius: 12px;
+    padding: 11px;
+    margin-bottom: 11px;
+    font-size: 0.84rem;
+  }
+  .copy-mini {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .toast {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: #181826;
+    border: 1px solid var(--gold);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    z-index: 220;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.22s ease;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 760px) {
+    .two-cols { grid-template-columns: 1fr; }
+    .banner-thumbs { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Yuxarı Sosial İkonlar (Admin paneldən əlavə olunan əlaqə hesabları ilə sinxron) -->
+<div class="top-social-bar" id="topSocialBar"></div>
+
+<header class="site-header">
+  <div class="container header-row">
+    <div class="logo-wrap">
+      <div class="logo-title">GLOBAL <span class="gold">EPIN</span></div>
+      <div class="logo-sub">Azərbaycanın Ən Güvənilir E-pin Və Oyun Saytı</div>
+    </div>
+
+    <div class="auth-actions" id="headerRightActions">
+      <button class="btn-dark" onclick="openAuthModal('login')" id="hdrLoginBtn">↪ Daxil ol</button>
+      <button class="btn-gold" onclick="openAuthModal('register')" id="hdrRegBtn">👤+ Qeydiyyat</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Axtarış + Menyu Düyməsi -->
+  <div class="search-strip">
+    <button class="menu-square-btn" onclick="openDrawer()" title="Menyu">☰</button>
+    <div class="search-box-wrap">
+      <input type="text" class="search-input" id="searchInput" placeholder="Oyun və ya paket axtar..." oninput="renderProducts()" />
+      <span class="search-ico">🔍</span>
+    </div>
+    <button class="menu-square-btn" onclick="openSupportModal()" title="Dəstək">🎧</button>
+  </div>
+
+  <!-- Sürətli Oyun Keçidləri -->
+  <div class="quick-games-row" id="quickGamesRow">
+    <button class="qg-item" onclick="quickFilter('Free Fire')"><span>🔥</span><span>FREE FIRE</span></button>
+    <button class="qg-item" onclick="quickFilter('PUBG')"><span>🎯</span><span>PUBG MOBILE</span></button>
+    <button class="qg-item" onclick="quickFilter('Brawl')"><span>⭐</span><span>BRAWL STARS</span></button>
+    <button class="qg-item" onclick="quickFilter('Clash')"><span>👑</span><span>CLASH ROYALE</span></button>
+    <button class="qg-item" onclick="quickFilter('Mobile Legends')"><span>⚔️</span><span>MLBB</span></button>
+    <button class="qg-item" onclick="quickFilter('Roblox')"><span>🟩</span><span>ROBLOX</span></button>
+    <button class="qg-item" onclick="quickFilter('TikTok')"><span>🎵</span><span>TIKTOK</span></button>
+  </div>
+
+  <!-- Kampaniya Banneri -->
+  <section class="promo-banner">
+    <span class="promo-tag">GLOBAL EPIN KAMPANİYA</span>
+    <h1>RƏQƏMSAL E-PİN KODLAR</h1>
+    <p>SÜRƏTLİ ÇATDIRILMA VƏ ENDİRİMLİ PAKETLƏR!</p>
+    <button class="btn-gold" onclick="document.getElementById('catalogSection').scrollIntoView({behavior:'smooth'})">İNDİ AL →</button>
+    <div class="banner-thumbs">
+      <div class="b-thumb active">PUBG UC</div>
+      <div class="b-thumb">Free Fire</div>
+      <div class="b-thumb">TikTok Jeton</div>
+      <div class="b-thumb">Roblox</div>
+      <div class="b-thumb">Brawl Stars</div>
+      <div class="b-thumb">E-PIN Kod</div>
+    </div>
+  </section>
+
+  <!-- Üstünlük Kartları -->
+  <section class="perks-list">
+    <div class="perk-card">
+      <div class="perk-head">
+        <div class="perk-ico" style="background:rgba(249,115,22,0.18);color:#fb923c;">🏷️</div>
+        <div>
+          <h3>Ən Yaxşı Qiymət Garantisi</h3>
+        </div>
+      </div>
+      <p>Bazardakı ən uyğun qiymətlərlə gaming məhsullarınızı satın alın! Oyunun dadını çıxarın!</p>
+      <div class="perk-pills">
+        <div class="perk-pill"><strong>%40</strong> qənaət</div>
+        <div class="perk-pill"><strong>50+</strong> paket</div>
+      </div>
+    </div>
+
+    <div class="perk-card">
+      <div class="perk-head">
+        <div class="perk-ico" style="background:rgba(59,130,246,0.18);color:#60a5fa;">🎧</div>
+        <div>
+          <h3>7/24 Canlı Dəstək</h3>
+        </div>
+      </div>
+      <p>Peşəkar dəstək komandamız həmişə yanınızdadır. Əlaqə kanalları vasitəsilə anında kömək alın.</p>
+      <div class="perk-pills">
+        <div class="perk-pill"><strong>24/7</strong> online</div>
+        <div class="perk-pill"><strong>Sürətli</strong> cavab</div>
+      </div>
+    </div>
+
+    <div class="perk-card">
+      <div class="perk-head">
+        <div class="perk-ico" style="background:rgba(168,85,247,0.18);color:#c084fc;">🎁</div>
+        <div>
+          <h3>Daimi Kampaniyalar</h3>
+        </div>
+      </div>
+      <p>Promo kodlar, həftəlik bonuslar və xüsusi endirimlərlə daha sərfəli alış-veriş edin!</p>
+      <div class="perk-pills">
+        <div class="perk-pill"><strong>GLOBAL5 / EPIN10</strong> promo kod</div>
+        <div class="perk-pill"><strong>E-PIN</strong> dərhal təhvil</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Məhsullar Kataloqu -->
+  <section id="catalogSection">
+    <div class="section-bar">
+      <h2>Məhsullar və E-PIN Kataloqu</h2>
+      <div class="cat-tabs">
+        <button class="cat-chip active" data-cat="all" onclick="setCat('all', this)">Hamısı</button>
+        <button class="cat-chip" data-cat="Mobile" onclick="setCat('Mobile', this)">Mobil</button>
+        <button class="cat-chip" data-cat="PC" onclick="setCat('PC', this)">PC</button>
+        <button class="cat-chip" data-cat="Gift" onclick="setCat('Gift', this)">Hədiyyə Kartı</button>
+      </div>
+    </div>
+    <div class="products-grid" id="productGrid"></div>
+  </section>
+
+  <!-- Balans və Ödəniş Üsulu Seçimi -->
+  <section class="panel-box" id="walletSection">
+    <div class="balance-banner">
+      <div>
+        <div style="font-size:0.78rem;color:var(--muted);">Cari balansınız</div>
+        <strong id="balanceDisplay">₼0.00</strong>
+      </div>
+      <button class="btn-gold" onclick="openTopupModal()">+ Balans Artır</button>
+    </div>
+
+    <div style="font-size:0.82rem;font-weight:800;color:var(--muted);margin-bottom:10px;letter-spacing:0.5px;">
+      ≡ ÖDƏNİŞ ÜSULU SEÇİN (Admin paneldən əlavə edilən üsullar)
+    </div>
+    <div class="pay-cards-row" id="paymentTilesRow"></div>
+
+    <div class="panel-box" style="margin:0;background:var(--bg-2);" id="selectedPayDetailCard"></div>
+  </section>
+
+  <!-- Sifarişlər və Balans Tarixçəsi -->
+  <section class="two-cols" id="ordersSection">
+    <div class="panel-box" style="margin:0;">
+      <h3 style="margin-bottom:10px;">Sifarişlərim və E-PIN Kodlarım</h3>
+      <div id="ordersList"></div>
+    </div>
+    <div class="panel-box" style="margin:0;">
+      <h3 style="margin-bottom:10px;">Balans Tarixçəsi</h3>
+      <div id="walletHistoryList"></div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="logo-title">GLOBAL <span class="gold">EPIN</span></div>
+    <div class="logo-sub">Sürətli Çatdırılma, Təhlükəsiz</div>
+    <p class="footer-brand-desc">
+      Azərbaycanda e-pin və oyun məhsulları dünyasının etibarlı ünvanı — GLOBAL EPIN. Oyun kodları, balans yükləmə və digər rəqəmsal məhsulları sürətli çatdırılma ilə əldə edin.
+    </p>
+    <div class="top-social-bar" style="justify-content:flex-start;padding-left:0;" id="footerSocialBar"></div>
+
+    <div class="footer-cols">
+      <div>
+        <h4>Əsas</h4>
+        <ul>
+          <li><a href="#">Ana Səhifə</a></li>
+          <li><a href="#catalogSection">Bütün məhsullar</a></li>
+          <li><a href="#walletSection">Balans yüklə</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>GLOBAL EPIN</h4>
+        <ul>
+          <li><a href="#ordersSection">Sifarişlərim</a></li>
+          <li><a href="javascript:void(0)" onclick="openSupportModal()">Əlaqə və Dəstək</a></li>
+          <li><a href="#walletSection">Ödəniş üsulları</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Əlaqə Hesabları</h4>
+        <ul id="footerContactsList"></ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Sol Çekmə Menyu -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<aside class="side-drawer" id="sideDrawer">
+  <div class="drawer-head">
+    <div class="logo-title" style="font-size:1.15rem;">GLOBAL <span class="gold">EPIN</span></div>
+    <button class="btn-dark" onclick="closeDrawer()">✕</button>
+  </div>
+  <button class="drawer-link" onclick="closeDrawer();document.getElementById('ordersSection').scrollIntoView({behavior:'smooth'})"><span>🛍️ Sifarişlərim</span><span>›</span></button>
+  <button class="drawer-link" onclick="closeDrawer();document.getElementById('catalogSection').scrollIntoView({behavior:'smooth'})"><span>🎮 Oyunlar</span><span>›</span></button>
+  <button class="drawer-link" onclick="closeDrawer();openTopupModal()"><span>💳 Balans Yüklə</span><span>›</span></button>
+  <button class="drawer-link" onclick="closeDrawer();openSupportModal()"><span>🎧 Dəstək Mərkəzi</span><span>›</span></button>
+
+  <div class="drawer-sec-title">Əlaqə Hesabları</div>
+  <div id="drawerContactsList"></div>
+</aside>
+
+<!-- Alt Sabit Naviqasiya (Şəkil 1-3 kimi: Balans, Kateqoriya, Kəşf et, Sifarişlərim, Hesabım) -->
+<nav class="bottom-nav">
+  <button class="bnav-btn" onclick="openTopupModal()"><span class="bnav-ico">💳</span><span>Balans</span></button>
+  <button class="bnav-btn" onclick="document.getElementById('catalogSection').scrollIntoView({behavior:'smooth'})"><span class="bnav-ico">⊞</span><span>Kateqoriya</span></button>
+  <button class="bnav-btn active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="bnav-ico">🌐</span><span>Kəşf et</span></button>
+  <button class="bnav-btn" onclick="document.getElementById('ordersSection').scrollIntoView({behavior:'smooth'})"><span class="bnav-ico">🛍️</span><span>Sifarişlər</span></button>
+  <button class="bnav-btn" onclick="openAuthModal('login')"><span class="bnav-ico">👤</span><span>Hesabım</span></button>
+</nav>
+
+<button class="float-support" onclick="openSupportModal()" title="Dəstək">🎧</button>
+
+<!-- Müştəri Login / Qeydiyyat Modalı -->
+<div class="modal-backdrop" id="authModal">
+  <div class="modal-card" style="max-width:390px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3>Müştəri Hesabı</h3>
+      <button class="copy-mini" onclick="closeModal('authModal')">✕</button>
+    </div>
+    <div id="loggedUserBox" style="display:none;background:var(--bg-2);border:1px solid var(--border);padding:10px;border-radius:10px;margin-bottom:12px;">
+      <div style="font-size:0.84rem;margin-bottom:6px;">Daxil olunub: <strong id="loggedUserName" style="color:var(--gold);"></strong></div>
+      <button class="copy-mini" onclick="logoutUser()">Çıxış et</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button class="btn-dark" style="flex:1;justify-content:center;" id="tabAuthLogin" onclick="setAuthTab('login')">Daxil ol</button>
+      <button class="btn-dark" style="flex:1;justify-content:center;" id="tabAuthReg" onclick="setAuthTab('register')">Qeydiyyat</button>
+    </div>
+    <form onsubmit="submitAuth(event)">
+      <div class="field">
+        <label>İstifadəçi adı və ya Telefon</label>
+        <input type="text" id="authUser" required />
+      </div>
+      <div class="field">
+        <label>Şifrə</label>
+        <input type="password" id="authPass" required />
+      </div>
+      <button type="submit" class="btn-gold" style="width:100%;justify-content:center;" id="authSubmitBtn">Daxil ol</button>
+    </form>
+  </div>
+</div>
+
+<!-- Sifariş Modalı -->
+<div class="modal-backdrop" id="orderModal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3>Sifariş Rəsmiləşdir</h3>
+      <button class="copy-mini" onclick="closeModal('orderModal')">✕</button>
+    </div>
+    <form onsubmit="submitOrder(event)">
+      <div class="field">
+        <label>Seçilmiş Paket</label>
+        <input type="text" id="orderProdText" readonly />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 95px;gap:8px;">
+        <div class="field">
+          <label>Oyunçu ID / Hesab</label>
+          <input type="text" id="playerIdInput" required placeholder="Məs: 5123456789" />
+        </div>
+        <div class="field">
+          <label>Miqdar</label>
+          <input type="number" id="orderQtyInput" min="1" max="50" value="1" oninput="refreshOrderPrice()" required />
+        </div>
+      </div>
+      <div class="field">
+        <label>Promo kod (opsional)</label>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="promoCodeInput" placeholder="GLOBAL5 və ya EPIN10" />
+          <button type="button" class="copy-mini" onclick="applyPromoCode()">Tətbiq</button>
+        </div>
+        <small id="promoMsg" style="color:var(--green);"></small>
+      </div>
+      <div class="field">
+        <label>Ödəniş üsulu</label>
+        <select id="orderPaySel" onchange="refreshOrderPayBox()"></select>
+      </div>
+      <div class="pay-info-box" id="orderPayBox"></div>
+      <div class="field" id="orderReceiptWrap">
+        <label>Ödəniş çekinin şəkli (məcburi)</label>
+        <input type="file" id="orderReceiptFile" accept="image/*" />
+      </div>
+      <button type="submit" class="btn-gold" style="width:100%;justify-content:center;">Sifarişi Göndər</button>
+    </form>
+  </div>
+</div>
+
+<!-- Balans Artırma Modalı -->
+<div class="modal-backdrop" id="topupModal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3>Balansı Artır</h3>
+      <button class="copy-mini" onclick="closeModal('topupModal')">✕</button>
+    </div>
+    <form onsubmit="submitTopup(event)">
+      <div class="field">
+        <label>Yükləmək istədiyiniz məbləğ (₼)</label>
+        <input type="number" id="topupAmtInput" min="1" step="0.5" value="10" required />
+      </div>
+      <div class="field">
+        <label>Ödəniş üsulu</label>
+        <select id="topupPaySel" onchange="refreshTopupPayBox()"></select>
+      </div>
+      <div class="pay-info-box" id="topupPayBox"></div>
+      <div class="field">
+        <label>Ödəniş çekinin şəkli (məcburi)</label>
+        <input type="file" id="topupReceiptFile" accept="image/*" required />
+      </div>
+      <button type="submit" class="btn-gold" style="width:100%;justify-content:center;">Balans Sorğusu Göndər</button>
+    </form>
+  </div>
+</div>
+
+<!-- Əlaqə / Dəstək Modalı -->
+<div class="modal-backdrop" id="supportModal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3>Əlaqə Hesabları və Dəstək</h3>
+      <button class="copy-mini" onclick="closeModal('supportModal')">✕</button>
+    </div>
+    <div id="modalContactsList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+const STORAGE_KEY = "global_epin_v3";
+
+const fallbackArt = `data:image/svg+xml;utf8,` + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180"><rect width="320" height="180" fill="#12121d"/><rect x="115" y="45" width="90" height="60" rx="14" fill="none" stroke="#f5b800" stroke-width="2.5"/><text x="160" y="132" text-anchor="middle" fill="#f5b800" font-family="sans-serif" font-size="13" font-weight="800">GLOBAL EPIN</text></svg>`);
+
+const defaultPayments = [
+  { id: "PM-1", name: "Kartdan-karta", account: "4169 7388 3625 5319", note: "Ani köçürmə", active: true },
+  { id: "PM-2", name: "MPAY", account: "051 862 12 17", note: "Qəbz ilə təsdiq", active: true }
+];
+
+const defaultContacts = [
+  { id: "CT-1", platform: "Telegram", handle: "051 862 12 17", url: "https://t.me/+994518621217", active: true },
+  { id: "CT-2", platform: "TikTok", handle: "@globalepin", url: "https://www.tiktok.com/@globalepin", active: true },
+  { id: "CT-3", platform: "Instagram", handle: "@globalepin", url: "https://www.instagram.com/globalepin", active: true }
+];
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      return {
+        products: Array.isArray(p.products) ? p.products : [],
+        balance: Number(p.balance || 0),
+        orders: Array.isArray(p.orders) ? p.orders : [],
+        topups: Array.isArray(p.topups) ? p.topups : [],
+        seenHashes: Array.isArray(p.seenHashes) ? p.seenHashes : [],
+        users: Array.isArray(p.users) ? p.users : [],
+        currentUser: p.currentUser || null,
+        lang: p.lang || "az",
+        paymentMethods: Array.isArray(p.paymentMethods) && p.paymentMethods.length ? p.paymentMethods : defaultPayments,
+        contactChannels: Array.isArray(p.contactChannels) && p.contactChannels.length ? p.contactChannels : defaultContacts
+      };
+    }
+  } catch (e) {}
+  return {
+    products: [],
+    balance: 0,
+    orders: [],
+    topups: [],
+    seenHashes: [],
+    users: [],
+    currentUser: null,
+    lang: "az",
+    paymentMethods: defaultPayments,
+    contactChannels: defaultContacts
+  };
+}
+
+let state = loadState();
+let activeCat = "all";
+let selectedProd = null;
+let promoDisc = 0;
+let authTab = "login";
+let selectedTileId = null;
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function toast(msg) {
+  const el = document.getElementById("toastEl");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+window.addEventListener("storage", (e) => {
+  if (e.key === STORAGE_KEY) {
+    state = loadState();
+    renderAll();
+  }
+});
+
+/* Əlaqə Hesablarının Bütün Yerlərdə Render Olunması */
+function renderContactsEverywhere() {
+  const contacts = state.contactChannels.filter(c => c.active);
+
+  const pillsHtml = contacts.map(c =>
+    `<a class="soc-pill" href="${c.url}" target="_blank"><span>${c.platform}</span><span>${c.handle}</span></a>`
+  ).join("");
+
+  document.getElementById("topSocialBar").innerHTML = pillsHtml;
+  document.getElementById("footerSocialBar").innerHTML = pillsHtml;
+
+  document.getElementById("footerContactsList").innerHTML = contacts.map(c =>
+    `<li><a href="${c.url}" target="_blank"><strong>${c.platform}:</strong> ${c.handle}</a></li>`
+  ).join("");
+
+  document.getElementById("drawerContactsList").innerHTML = contacts.map(c =>
+    `<a class="drawer-link" href="${c.url}" target="_blank"><span>${c.platform} · ${c.handle}</span><span>↗</span></a>`
+  ).join("");
+
+  document.getElementById("modalContactsList").innerHTML = contacts.map(c =>
+    `<div class="item-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <div><strong>${c.platform}</strong><div style="color:var(--muted);font-size:0.78rem;">${c.handle}</div></div>
+      <a class="btn-gold" href="${c.url}" target="_blank">Keçid ↗</a>
+    </div>`
+  ).join("") || `<p style="color:var(--muted);">Əlaqə hesabı əlavə olunmayıb.</p>`;
+}
+
+/* Ödəniş Sistemləri Render */
+function renderPaymentSection() {
+  const methods = state.paymentMethods.filter(m => m.active);
+  if (!selectedTileId && methods.length) selectedTileId = methods[0].id;
+  if (selectedTileId && !methods.some(m => m.id === selectedTileId)) {
+    selectedTileId = methods.length ? methods[0].id : null;
+  }
+
+  document.getElementById("paymentTilesRow").innerHTML = methods.map(m => {
+    const sel = m.id === selectedTileId;
+    return `
+      <button class="pay-method-tile ${sel ? 'selected' : ''}" onclick="selectPayTile('${m.id}')">
+        <div style="font-size:1.25rem;">💳</div>
+        <strong>${m.name}</strong>
+        <span>${m.account}</span>
+        <span class="badge-pill-tag admin">Qəbz ilə</span>
+      </button>
+    `;
+  }).join("") + `
+    <button class="pay-method-tile ${selectedTileId === 'wallet' ? 'selected' : ''}" onclick="selectPayTile('wallet')">
+      <div style="font-size:1.25rem;">👛</div>
+      <strong>Balans ilə Ödəniş</strong>
+      <span>${state.balance.toFixed(2)} ₼</span>
+      <span class="badge-pill-tag">Dərhal</span>
+    </button>
+  `;
+
+  const detailCard = document.getElementById("selectedPayDetailCard");
+  if (selectedTileId === "wallet") {
+    detailCard.innerHTML = `
+      <strong>Balans ilə Dərhal Ödəniş</strong>
+      <p style="color:var(--muted);font-size:0.82rem;margin:4px 0 10px;">Cari balansınız: <strong style="color:var(--gold);">${state.balance.toFixed(2)} ₼</strong>. Sifariş zamanı balans seçərək dərhal E-PIN əldə edə bilərsiniz.</p>
+      <button class="btn-gold" onclick="openTopupModal()">+ Balans Artır</button>
+    `;
+  } else {
+    const pm = methods.find(m => m.id === selectedTileId) || methods[0];
+    if (pm) {
+      detailCard.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div>
+            <strong>${pm.name}</strong>
+            <div style="color:var(--gold);font-weight:800;margin-top:3px;">${pm.account}</div>
+            ${pm.note ? `<div style="color:var(--muted);font-size:0.78rem;">${pm.note}</div>` : ""}
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="copy-mini" onclick="copyVal('${pm.account}')">Kopyala</button>
+            <button class="btn-gold" onclick="openTopupModal('${pm.id}')">Çeklə Balans Artır</button>
+          </div>
+        </div>
+      `;
+    } else {
+      detailCard.innerHTML = `<span style="color:var(--muted);">Ödəniş üsulu yoxdur.</span>`;
+    }
+  }
+}
+
+function selectPayTile(id) {
+  selectedTileId = id;
+  renderPaymentSection();
+}
+
+function copyVal(v) {
+  navigator.clipboard?.writeText(v);
+  toast("Kopyalandı: " + v);
+}
+
+/* Kataloq */
+function quickFilter(term) {
+  document.getElementById("searchInput").value = term;
+  renderProducts();
+  document.getElementById("catalogSection").scrollIntoView({ behavior: "smooth" });
+}
+
+function setCat(cat, btn) {
+  activeCat = cat;
+  document.querySelectorAll(".cat-chip").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderProducts();
+}
+
+function renderProducts() {
+  const q = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+  const list = state.products.filter(p => {
+    const cOk = activeCat === "all" || p.cat === activeCat;
+    const qOk = !q || String(p.name || "").toLowerCase().includes(q) || String(p.desc || "").toLowerCase().includes(q);
+    return cOk && qOk;
+  });
+
+  const grid = document.getElementById("productGrid");
+  if (!list.length) {
+    grid.innerHTML = `<div class="panel-box" style="grid-column:1/-1;text-align:center;color:var(--muted);">Məhsul tapılmadı. Admin paneldən məhsul əlavə edə bilərsiniz.</div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(p => {
+    const out = Number(p.stock ?? 0) <= 0;
+    return `
+      <div class="p-card">
+        <img class="p-thumb" src="${p.image || fallbackArt}" alt="${p.name}" />
+        <div class="p-body">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:0.7rem;color:var(--gold);font-weight:800;">${p.cat || "Oyun"}</span>
+              <span style="font-size:0.72rem;color:${out ? 'var(--danger)' : 'var(--green)'};font-weight:700;">${out ? 'Bitib' : 'Stok: ' + p.stock}</span>
+            </div>
+            <div class="p-title">${p.name}</div>
+            <div class="p-desc">${p.desc || ""}</div>
+          </div>
+          <div class="p-foot">
+            <span class="p-price">${Number(p.price).toFixed(2)} ₼</span>
+            <button class="btn-gold" ${out ? 'disabled' : ''} onclick="openOrder('${p.id}')">${out ? 'Bitib' : 'Al'}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* Sifariş & Balans */
+function openOrder(id) {
+  selectedProd = state.products.find(x => String(x.id) === String(id));
+  if (!selectedProd) return;
+  promoDisc = 0;
+  document.getElementById("promoCodeInput").value = "";
+  document.getElementById("promoMsg").textContent = "";
+  document.getElementById("orderQtyInput").value = 1;
+  document.getElementById("playerIdInput").value = "";
+  document.getElementById("orderReceiptFile").value = "";
+
+  const methods = state.paymentMethods.filter(m => m.active);
+  document.getElementById("orderPaySel").innerHTML =
+    methods.map(m => `<option value="${m.id}">${m.name} (${m.account})</option>`).join("") +
+    `<option value="wallet">Balans ilə Ödə (${state.balance.toFixed(2)} ₼)</option>`;
+
+  refreshOrderPrice();
+  refreshOrderPayBox();
+  document.getElementById("orderModal").classList.add("open");
+}
+
+function applyPromoCode() {
+  const c = (document.getElementById("promoCodeInput").value || "").trim().toUpperCase();
+  if (c === "GLOBAL5") { promoDisc = 0.05; document.getElementById("promoMsg").textContent = "5% endirim tətbiq olundu."; }
+  else if (c === "EPIN10") { promoDisc = 0.10; document.getElementById("promoMsg").textContent = "10% endirim tətbiq olundu."; }
+  else { promoDisc = 0; document.getElementById("promoMsg").textContent = "Kod tapılmadı (GLOBAL5 / EPIN10)."; }
+  refreshOrderPrice();
+}
+
+function calcOrderTotal() {
+  if (!selectedProd) return 0;
+  const q = Math.max(1, Number(document.getElementById("orderQtyInput").value || 1));
+  return Number((selectedProd.price * q * (1 - promoDisc)).toFixed(2));
+}
+
+function refreshOrderPrice() {
+  if (!selectedProd) return;
+  const q = Math.max(1, Number(document.getElementById("orderQtyInput").value || 1));
+  document.getElementById("orderProdText").value = `${selectedProd.name} (x${q}) — ${calcOrderTotal().toFixed(2)} ₼`;
+}
+
+function refreshOrderPayBox() {
+  const val = document.getElementById("orderPaySel").value;
+  const box = document.getElementById("orderPayBox");
+  const recWrap = document.getElementById("orderReceiptWrap");
+  if (val === "wallet") {
+    recWrap.style.display = "none";
+    box.innerHTML = `<strong>Balans ilə ödəniş</strong> · Balansınız: <strong>${state.balance.toFixed(2)} ₼</strong>`;
+  } else {
+    recWrap.style.display = "block";
+    const pm = state.paymentMethods.find(m => m.id === val) || state.paymentMethods[0];
+    if (pm) {
+      box.innerHTML = `<strong>${pm.name}</strong><div style="margin-top:4px;display:flex;justify-content:space-between;align-items:center;"><span>${pm.account}</span><button type="button" class="copy-mini" onclick="copyVal('${pm.account}')">Kopyala</button></div>`;
+    }
+  }
+}
+
+function readDataUrl(file) {
+  return new Promise((res) => {
+    if (!file) return res(null);
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => res(null);
+    r.readAsDataURL(file);
+  });
+}
+
+function makeEpin() {
+  const p = () => Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `GEPIN-${p()}-${p()}-${p()}`;
+}
+
+async function submitOrder(e) {
+  e.preventDefault();
+  if (!selectedProd) return;
+  const q = Math.max(1, Number(document.getElementById("orderQtyInput").value || 1));
+  const total = calcOrderTotal();
+  const cost = Number(selectedProd.cost || 0) * q;
+  const payVal = document.getElementById("orderPaySel").value;
+  const playerId = document.getElementById("playerIdInput").value.trim();
+
+  if (payVal === "wallet") {
+    if (state.balance < total) { toast("Balans kifayət etmir."); return; }
+    state.balance = Number((state.balance - total).toFixed(2));
+    if (selectedProd.stock >= q) selectedProd.stock -= q;
+    state.orders.unshift({
+      id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+      product: `${selectedProd.name} (x${q})`,
+      playerId,
+      method: "Balans",
+      amount: total,
+      cost,
+      status: "Təsdiqləndi",
+      flag: "Balans",
+      epin: makeEpin()
+    });
+    state.topups.unshift({
+      id: "TX-" + Math.floor(10000 + Math.random() * 90000),
+      method: "Balans ilə alış",
+      amount: -total,
+      status: "Tamamlandı"
+    });
+    saveState();
+    renderAll();
+    closeModal("orderModal");
+    toast("Sifariş təsdiqləndi! E-PIN hazırdır.");
+    return;
+  }
+
+  const file = document.getElementById("orderReceiptFile").files[0];
+  if (!file) { toast("Ödəniş çekinin şəklini seçin."); return; }
+  const receiptImage = await readDataUrl(file);
+  const sig = `${file.name.toLowerCase()}|${file.size}|${file.lastModified}`;
+  const flag = state.seenHashes.includes(sig) ? "Şübhəli / Təkrar" : "Normal";
+  state.seenHashes.push(sig);
+  const pm = state.paymentMethods.find(m => m.id === payVal);
+
+  state.orders.unshift({
+    id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+    product: `${selectedProd.name} (x${q})`,
+    playerId,
+    method: pm ? pm.name : "Köçürmə",
+    amount: total,
+    cost,
+    status: "Təsdiq gözləyir",
+    flag,
+    receiptImage,
+    receiptName: file.name,
+    epin: null
+  });
+  saveState();
+  renderAll();
+  closeModal("orderModal");
+  toast("Çek göndərildi. Admin təsdiqini gözləyin.");
+}
+
+function openTopupModal(presetMethodId = null) {
+  const methods = state.paymentMethods.filter(m => m.active);
+  document.getElementById("topupPaySel").innerHTML = methods.map(m => `<option value="${m.id}">${m.name} (${m.account})</option>`).join("");
+  if (presetMethodId) document.getElementById("topupPaySel").value = presetMethodId;
+  document.getElementById("topupReceiptFile").value = "";
+  refreshTopupPayBox();
+  document.getElementById("topupModal").classList.add("open");
+}
+
+function refreshTopupPayBox() {
+  const val = document.getElementById("topupPaySel").value;
+  const pm = state.paymentMethods.find(m => m.id === val) || state.paymentMethods[0];
+  if (!pm) return;
+  document.getElementById("topupPayBox").innerHTML = `<strong>${pm.name}</strong><div style="margin-top:4px;display:flex;justify-content:space-between;align-items:center;"><span>${pm.account}</span><button type="button" class="copy-mini" onclick="copyVal('${pm.account}')">Kopyala</button></div>`;
+}
+
+async function submitTopup(e) {
+  e.preventDefault();
+  const amt = Number(document.getElementById("topupAmtInput").value);
+  const payVal = document.getElementById("topupPaySel").value;
+  const file = document.getElementById("topupReceiptFile").files[0];
+  if (!amt || amt <= 0 || !file) return;
+  const receiptImage = await readDataUrl(file);
+  const sig = `${file.name.toLowerCase()}|${file.size}|${file.lastModified}`;
+  const flag = state.seenHashes.includes(sig) ? "Şübhəli / Təkrar" : "Normal";
+  state.seenHashes.push(sig);
+  const pm = state.paymentMethods.find(m => m.id === payVal);
+
+  state.topups.unshift({
+    id: "TOP-" + Math.floor(10000 + Math.random() * 90000),
+    method: pm ? pm.name : "Köçürmə",
+    amount: amt,
+    status: "Təsdiq gözləyir",
+    flag,
+    receiptImage
+  });
+  saveState();
+  renderAll();
+  closeModal("topupModal");
+  toast("Balans artırma çeki göndərildi.");
+}
+
+function renderOrdersAndHistory() {
+  document.getElementById("balanceDisplay").textContent = `₼${state.balance.toFixed(2)}`;
+
+  document.getElementById("ordersList").innerHTML = state.orders.map(o => {
+    const cls = o.status === "Təsdiqləndi" ? "st-ok" : (o.status === "Rədd edildi" ? "st-no" : "st-pend");
+    return `
+      <div class="item-row">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>${o.product} — ${Number(o.amount).toFixed(2)} ₼</strong>
+          <span class="st-badge ${cls}">${o.status}</span>
+        </div>
+        <div style="color:var(--muted);font-size:0.75rem;margin-top:3px;">ID: ${o.id} · ${o.method} · ${o.flag || "Normal"}</div>
+        ${o.epin ? `<div class="epin-line"><span>E-PIN: <strong>${o.epin}</strong></span><button class="copy-mini" onclick="copyVal('${o.epin}')">Kopyala</button></div>` : ""}
+      </div>
+    `;
+  }).join("") || `<p style="color:var(--muted);font-size:0.84rem;">Hələ sifariş yoxdur.</p>`;
+
+  document.getElementById("walletHistoryList").innerHTML = state.topups.map(t => `
+    <div class="item-row">
+      <div style="display:flex;justify-content:space-between;">
+        <strong>${t.method}</strong>
+        <span>${Number(t.amount) >= 0 ? "+" : ""}${Number(t.amount).toFixed(2)} ₼</span>
+      </div>
+      <div style="color:var(--muted);font-size:0.75rem;">${t.id} · ${t.status}</div>
+    </div>
+  `).join("") || `<p style="color:var(--muted);font-size:0.84rem;">Balans hərəkəti yoxdur.</p>`;
+}
+
+/* Auth & Drawer & Modals */
+function openAuthModal(mode = "login") {
+  setAuthTab(mode);
+  const box = document.getElementById("loggedUserBox");
+  if (state.currentUser) {
+    box.style.display = "block";
+    document.getElementById("loggedUserName").textContent = state.currentUser;
+  } else {
+    box.style.display = "none";
+  }
+  document.getElementById("authModal").classList.add("open");
+}
+
+function setAuthTab(m) {
+  authTab = m;
+  document.getElementById("authSubmitBtn").textContent = m === "login" ? "Daxil ol" : "Qeydiyyatdan keç";
+}
+
+function submitAuth(e) {
+  e.preventDefault();
+  const u = document.getElementById("authUser").value.trim();
+  const p = document.getElementById("authPass").value;
+  if (authTab === "register") {
+    if (state.users.some(x => x.username.toLowerCase() === u.toLowerCase())) { toast("Bu hesab mövcuddur."); return; }
+    state.users.push({ username: u, password: p });
+    state.currentUser = u;
+  } else {
+    const f = state.users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
+    if (!f) { toast("Məlumatlar yanlışdır."); return; }
+    state.currentUser = f.username;
+  }
+  saveState();
+  renderAuthHeader();
+  closeModal("authModal");
+  toast("Xoş gəldiniz, " + state.currentUser);
+}
+
+function logoutUser() {
+  state.currentUser = null;
+  saveState();
+  renderAuthHeader();
+  closeModal("authModal");
+  toast("Çıxış edildi.");
+}
+
+function renderAuthHeader() {
+  if (state.currentUser) {
+    document.getElementById("headerRightActions").innerHTML =
+      `<button class="btn-gold" onclick="openAuthModal('login')">👤 ${state.currentUser}</button>`;
+  } else {
+    document.getElementById("headerRightActions").innerHTML =
+      `<button class="btn-dark" onclick="openAuthModal('login')">↪ Daxil ol</button>
+       <button class="btn-gold" onclick="openAuthModal('register')">👤+ Qeydiyyat</button>`;
+  }
+}
+
+function openDrawer() {
+  document.getElementById("sideDrawer").classList.add("open");
+  document.getElementById("drawerBackdrop").classList.add("open");
+}
+function closeDrawer() {
+  document.getElementById("sideDrawer").classList.remove("open");
+  document.getElementById("drawerBackdrop").classList.remove("open");
+}
+function openSupportModal() {
+  renderContactsEverywhere();
+  document.getElementById("supportModal").classList.add("open");
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+
+function renderAll() {
+  renderContactsEverywhere();
+  renderAuthHeader();
+  renderProducts();
+  renderPaymentSection();
+  renderOrdersAndHistory();
+}
+
+renderAll();
+</script>
+</body>
+</html>
